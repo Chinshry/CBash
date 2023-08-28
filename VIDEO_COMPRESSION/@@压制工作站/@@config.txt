@@ -1,0 +1,4 @@
+AVSMode=1
+NeedLogo=1
+NeedYadif=0
+GraphicsType=i

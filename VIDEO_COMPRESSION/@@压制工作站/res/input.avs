@@ -1,0 +1,6 @@
+LoadPlugin("dll\VSFilterMod.dll")
+LoadPlugin("dll\LSMASHSource.dll")
+Video=LWLibavVideoSource("temp\input.mp4")
+Audio=LWLibavAudioSource("temp\input.mp4")
+AudioDub(video,Audio)
+TextSubMod("temp\input.ass")
