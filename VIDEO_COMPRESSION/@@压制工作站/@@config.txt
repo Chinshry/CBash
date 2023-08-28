@@ -1,4 +1,4 @@
-AVSMode=1
+AVSMode=0
 NeedLogo=1
 NeedYadif=0
 GraphicsType=i

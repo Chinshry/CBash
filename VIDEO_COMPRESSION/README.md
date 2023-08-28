@@ -1,31 +1,40 @@
 # 便捷压制 By.Chinshry
 
+[![Badge](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Chinshry/CBash/tree/main/VIDEO_COMPRESSION)
+[![Badge](https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white)](https://gitee.com/chinshry/CBash/tree/main/VIDEO_COMPRESSION)
+
 ## 目录
 
-* [💻 环境准备](#💻-环境准备)
-* [💾 压制](#💾-压制)
+* [💻 环境准备](#-环境准备)
+* [💾 压制](#-压制)
   * [1️⃣ 合轴](#1️⃣-合轴)
   * [2️⃣ 压制配置](#2️⃣-压制配置)
   * [3️⃣ 普通压制](#3️⃣-普通压制)
   * [4️⃣ AVS压制](#4️⃣-AVS压制)
   * [5️⃣ 归档](#5️⃣-归档)
-* [❗ 注意事项](❗-注意事项)
-* [❓ Q&A](❓-Q&A)
+* [❗ 注意事项](#-注意事项)
+* [❓ Q&A](#-qa)
 
 ## 💻 环境准备
 
 ### 下载所需文件
 
-1. 点击下载→ [@@压制工作站](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/Chinshry/CBash/blob/main/VIDEO_COMPRESSION/@@压制工作站.zip)；
-2. 将该目录内文件完整下载后放置，以后该目录作为**压制工作目录**；
+| 文件 | 下载地址(蓝奏 密码:0710) |
+| ----- | ------ |
+| @@压制工作站.zip | https://wwxi.lanzouq.com/b01rb3ucf |
+| @@压制工作站_no_ffmpeg.zip | https://wwxi.lanzouq.com/b01rb3ucf |
 
-### ffmpeg环境变量配置(可选)
+### 无需配置ffmpeg环境变量(二选一)
 
-1. 下载 [ffmpeg稳定版](https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-full_build.zip)；
-2. 按照 [环境变量配置教程](https://www.bilibili.com/read/cv13908332?from=search) 配置ffmpeg环境变量；
+1. 下载 [@@压制工作站.zip]；
+2. 下载后解压，然后放置，以后该目录作为**压制工作目录**；
 
-> * 若执行此步骤，则无需下载上步文件夹内的ffmpeg.exe
-> * 若执行此步骤，则无需把视频和字幕移动到压制工作站文件夹下，任意位置拖拽到脚本上均可
+### 需要配置ffmpeg环境变量(二选一)
+
+1. 下载 [@@压制工作站_no_ffmpeg.zip]
+2. 下载后解压，然后放置，以后该目录作为**压制工作目录**；
+3. 下载 [ffmpeg稳定版](https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-full_build.zip)；
+4. 按照 [环境变量配置教程](https://www.bilibili.com/read/cv13908332) 配置ffmpeg环境变量；
 
 ## 💾 压制
 
@@ -33,7 +42,7 @@
 
 #### 1. 加滚轴行
 
-* 腾讯文档 [做不完的工作统计](https://docs.qq.com/sheet/DZk1BTXF0dlZmT0RW?tab=d0zoia) 对应视频的分表里复制；
+* [做不完的工作统计] (链接见群公告) 对应视频的分表里复制；
   * 或自行编写添加
 * 添加到轴文件第一行；
 
@@ -79,7 +88,7 @@
 > * AVS压制会复制一份视频到临时目录，因此必须保证 工作目录可用空间 > 视频所占用空间
 
 1. 下载并安装 [AviSynthPlus](https://github.com/AviSynth/AviSynthPlus/releases/download/v3.7.3/AviSynthPlus_3.7.3_20230715.exe) 必须勾选X64
-![picture](https://raw.githubusercontent.com/Chinshry/CBash/main/VIDEO_COMPRESSION/Capture/AviSynthPlus.png)
+![picture](https://gitee.com/chinshry/CBash/raw/main/VIDEO_COMPRESSION/Capture/AviSynthPlus.png)
 2. 配置文件[config.txt] 中的AVSMode配置为1
 3. 其余步骤同普通压制，将视频和轴拖拽到脚本即可
 4. 压制完毕后请记得将AVSMode修改回0
@@ -102,12 +111,12 @@
   * 可以先压30s，然后将压制窗口叉掉看看滚轴和LOGO是否有问题，花字是否对帧。
   * 拉丝现象可使用Potplayer播放器关闭反交错优化观察(视频上右键 视频-反交错-不使用)，同时腾讯文档该视频的表格内会有显著标注。
     * 拉丝现象如下：
-    ![picture](https://raw.githubusercontent.com/Chinshry/CBash/main/VIDEO_COMPRESSION/Capture/YadifExample.png)
+    ![picture](https://gitee.com/chinshry/CBash/raw/main/VIDEO_COMPRESSION/Capture/YadifExample.png)
   * 压制时，可以通过以下变量估算压制进度：
     * frame：已经压制的帧数，frame / 视频总帧数 = 压制进度
     * time：已经压制的视频时长， time / 视频总时长 = 压制进度
     * speed：压制速度，视频时长/speed ≈ 压制所需总时长。不是绝对速度，根据电脑配置，视频码率各有差异。
-    ![picture](https://raw.githubusercontent.com/Chinshry/CBash/main/VIDEO_COMPRESSION/Capture/Progress.png)
+    ![picture](https://gitee.com/chinshry/CBash/raw/main/VIDEO_COMPRESSION/Capture/Progress.png)
 
 ## ❓ Q&A
 
@@ -117,7 +126,7 @@
 
 ### Q2. 提示“chcp不是内部或外部命令”显示乱码
 
-![picture](https://raw.githubusercontent.com/Chinshry/CBash/main/VIDEO_COMPRESSION/Capture/Q2.png)
+![picture](https://gitee.com/chinshry/CBash/raw/main/VIDEO_COMPRESSION/Capture/Q2.png)
 
 在系统变量PATH下添加路径C:\WINDOWS\system32;  [具体教程](https://blog.csdn.net/stupid_dernier/article/details/85105117)
 
@@ -134,5 +143,5 @@
 ### Q5. 2K/4K(VP90)视频压制出来没有声音
 
 * 下载安装Potplayer，再次查看视频
-* 官网(搭梯子)：<https://potplayer.daum.net/?lang=zh_CN>
+* 官网(梯)：<https://potplayer.daum.net/?lang=zh_CN>
 * 镜像：<http://potplayer.tv/?lang=zh_CN>
