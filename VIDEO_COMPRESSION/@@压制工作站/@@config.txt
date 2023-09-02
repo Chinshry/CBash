@@ -1,4 +1,5 @@
 AVSMode=0
 NeedLogo=1
 NeedYadif=0
+CRF=23.5
 GraphicsType=i

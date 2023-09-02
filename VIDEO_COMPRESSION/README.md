@@ -74,6 +74,7 @@
 | AVSMode | 0 | 是否AVS压制 | 本次压制完毕后，修改回0 |
 | NeedLogo | 1 | 是否压制Logo | 本次压制完毕后，修改回0 |
 | NeedYadif | 0 | 是否反交错 | 视频源为INDEX的 **打歌舞台** 或视频源播放有 **拉丝现象** 时需要修改为1，本次压制完毕后，修改回0 |
+| CRF | 23.5 | CRF | 推荐配置范围18-25，数字越小越接近无损，18为几乎无损，[参考资料](https://trac.ffmpeg.org/wiki/Encode/H.264#a1.ChooseaCRFvalue)；若高码率含舞台的视频可压制30s，观察损耗是否严重，再酌情调整 |
 | GraphicsType | i | 压制类型 | 类型，若GPU为n卡可修改为n，压制更快 |
 
 ### 3️⃣ 普通压制

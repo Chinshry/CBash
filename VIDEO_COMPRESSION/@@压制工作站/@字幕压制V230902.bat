@@ -50,6 +50,7 @@ REM =================读取配置文件=======================
 set "AVSMode=0"
 set "NeedLogo=1"
 set "NeedYadif=0"
+set "CRF=23.5"
 set "GraphicsType=i"
 set "configFile=@@config.txt"
 for /f "usebackq delims=" %%a in ("%configFile%") do (
@@ -58,12 +59,14 @@ for /f "usebackq delims=" %%a in ("%configFile%") do (
         if "%%b"=="AVSMode" set "AVSMode=%%c"
         if "%%b"=="NeedLogo" set "NeedLogo=%%c"
         if "%%b"=="NeedYadif" set "NeedYadif=%%c"
+        if "%%b"=="CRF" set "CRF=%%c"
         if "%%b"=="GraphicsType" set "GraphicsType=%%c"
     )
 )
 echo 是否AVS压制=%AVSMode%
 echo 是否压制Logo=%NeedLogo%
 echo 是否反交错=%NeedYadif%
+echo CRF=%CRF%
 echo 显卡类型=%GraphicsType%
 echo 确认以上配置无误，回车开始压制...
 pause
@@ -143,8 +146,8 @@ echo logoPosition=!logoPosition!
 echo logoSize=!logoSize!
 echo logoName=!logoName!
 echo logoPath=!logoPath!
-set "logoCmd=movie='!logoPath!',scale=!logoSize![wm];[in][wm]overlay=!logoPosition!"
-set "LogoCmdFilter=[1:v]scale=!logoSize![wm];[m][wm]overlay=!logoPosition!"
+set "logoCmd=movie='!logoPath!',scale=!logoSize![wm];[in][wm]overlay=!logoPosition!,"
+set "LogoCmdFilter=[1:v]scale=!logoSize![wm];[m][wm]overlay=!logoPosition!,"
 
 
 REM =================拼凑命令=======================
@@ -158,17 +161,21 @@ if "%AVSMode%"=="1" (
 	set "videofile=res\input.avs"
 ) else (
 	echo 普通压制
-	set "subCmd=,subtitles='%subcodefile%'"
+	set "subCmd=subtitles='%subcodefile%'"
 )
 if "%NeedYadif%"=="0" (
     echo 无需反交错
-	set "vfCmd=-vf "%logoCmd%%subCmd%""
+	if "%logoCmd%%subCmd%" == "" (
+		set vfCmd=
+	) else (
+		set vfCmd=-vf "%logoCmd%%subCmd%"
+	)
 ) else (
     echo 需要反交错
 	if "%NeedLogo%"=="1" (
-		set "vfCmd=-i "%logoPath%" -filter_complex "[0:v]yadif[m];%LogoCmdFilter%%subCmd%""
+		set vfCmd=-i "%logoPath%" -filter_complex "[0:v]yadif[m];%LogoCmdFilter%%subCmd%"
 	) else (
-		set "vfCmd=-vf "yadif %logoCmd%%subCmd%""
+		set vfCmd=-vf "yadif,%subCmd%"
 	)
 )
 
@@ -176,7 +183,7 @@ REM =================压制=======================
 :compression 
 @echo on
 :: CPU 压制
-ffmpeg %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf 25 -c:a aac "%outputfile%" -y
+ffmpeg %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% -c:a aac "%outputfile%" -y
 :: GPU 压制
 :: N卡 直压
 :: ffmpeg %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -c:a aac "%outputfile%" -y
