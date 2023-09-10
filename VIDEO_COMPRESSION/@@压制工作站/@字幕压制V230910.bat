@@ -12,18 +12,26 @@ if "%~1" == "" (
 set "videofile="
 set "subfile="
 
-for %%i in (%*) do (
-  set "ext=%%~xi"
+:process_args
+if "%~1" neq "" (
+  set "file=%~1"
+  set "ext=%~x1"
+  
   if "!ext:~1!" == "mp4" (
-    set "videofile=%%~i"
+    set "videofile=!file!"
   ) else if "!ext:~1!" == "mkv" (
-    set "videofile=%%~i"
+    set "videofile=!file!"
   ) else if "!ext:~1!" == "ass" (
-    set "subfile=%%~i"
+    set "subfile=!file!"
   ) else if "!ext:~1!" == "srt" (
-    set "subfile=%%~i"
+    set "subfile=!file!"
   )
+  shift
+  goto process_args
 )
+
+echo videofile=%videofile%
+echo subfile=%subfile%
 
 if "%videofile%" == "" (
   echo 没有找到视频文件，请拖拽视频文件和图片文件到该脚本上来。
@@ -183,16 +191,16 @@ REM =================压制=======================
 :compression 
 @echo on
 :: CPU 压制
-ffmpeg %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% -c:a aac "%outputfile%" -y
+ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% -c:a aac "%outputfile%" -y
 :: GPU 压制
 :: N卡 直压
-:: ffmpeg %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -c:a aac "%outputfile%" -y
 :: N卡 6000K
-:: ffmpeg  %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -b:v 6000k -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -b:v 6000k -c:a aac "%outputfile%" -y
 :: A卡 直压
-:: ffmpeg %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -c:a aac "%outputfile%" -y
 :: A卡 6000K
-:: ffmpeg %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -b:v 6000k -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -b:v 6000k -c:a aac "%outputfile%" -y
 
 del res\temp\* /Q
 
