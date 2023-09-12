@@ -1,1 +1,0 @@
-ffmpeg -i "%~1" -vf hflip "%~n1_flip"%~x1

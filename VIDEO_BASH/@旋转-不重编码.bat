@@ -1,1 +1,0 @@
-ffmpeg -i "%~1" -metadata:s:v rotate="90" -codec copy "%~n1 trans"%~x1
