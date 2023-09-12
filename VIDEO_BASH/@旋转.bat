@@ -1,0 +1,1 @@
+ffmpeg -i "%~1" -vf "transpose=2"-codec copy "%~n1 trans"%~x1
