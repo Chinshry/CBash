@@ -3,46 +3,51 @@ chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 REM =================文件导入=======================
-if "%~1" == "" (
-  echo 请拖拽视频文件和字幕文件到该脚本
-  pause
-  goto :eof
+if "%~2" == "" (
+    echo 请拖拽视频文件和字幕文件到该脚本
+    pause
+    goto :eof
 )
 
 set "videofile="
 set "subfile="
 
 :process_args
+setlocal enableextensions disabledelayedexpansion
 if "%~1" neq "" (
-  set "file=%~1"
-  set "ext=%~x1"
-  
-  if "!ext:~1!" == "mp4" (
-    set "videofile=!file!"
-  ) else if "!ext:~1!" == "mkv" (
-    set "videofile=!file!"
-  ) else if "!ext:~1!" == "ass" (
-    set "subfile=!file!"
-  ) else if "!ext:~1!" == "srt" (
-    set "subfile=!file!"
-  )
-  shift
-  goto process_args
+    set "file=%~1"
+    set "ext=%~x1"
+    setlocal enabledelayedexpansion
+    ren "!file!" "%~nx1"
+    if /i "!ext:~1!" == "mp4" (
+        set "videofile=%~1"
+    ) else if /i "!ext:~1!" == "mkv" (
+        set "videofile=%~1"
+    ) else if /i "!ext:~1!" == "ass" (
+        set "subfile=%~1"
+    ) else if /i "!ext:~1!" == "srt" (
+        set "subfile=%~1"
+    )
+    setlocal disabledelayedexpansion
+    shift
+    goto process_args
 )
+endlocal
+setlocal enabledelayedexpansion
 
 echo videofile=%videofile%
 echo subfile=%subfile%
 
 if "%videofile%" == "" (
-  echo 没有找到视频文件，请拖拽视频文件和图片文件到该脚本上来。
-  pause
-  goto :eof
+    echo 没有找到视频文件，请拖拽视频文件和图片文件到该脚本上来。
+    pause
+    goto :eof
 )
 
 if "%subfile%" == "" (
-  echo 没有找到字幕文件，请拖拽视频文件和图片文件到该脚本上来。
-  pause
-  goto :eof
+    echo 没有找到字幕文件，请拖拽视频文件和图片文件到该脚本上来。
+    pause
+    goto :eof
 )
 
 set "subcodefile=!subfile:\=\\!"
@@ -50,8 +55,8 @@ set "subcodefile=!subcodefile:[=\[!"
 set "subcodefile=!subcodefile:]=\]!"
 set "subcodefile=!subcodefile::=\:!"
 for %%A in ("%videofile%") do (
-  set "outputfile=%%~dpnA_output.mp4"
-  set "prefile=%%~dpnA_pre%%~xA"
+    set "outputfile=%%~dpnA_output.mp4"
+    set "prefile=%%~dpnA_pre%%~xA"
 )
 
 REM =================读取配置文件=======================
@@ -84,16 +89,16 @@ for /F "delims=" %%i in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr /C:"Stream #
     echo %%i | findstr /C:"vp9" > nul
     if not errorlevel 1 (
         echo 视频是VP90编码
-		goto :handleVP90
+        goto :handleVP90
     ) else (
-		echo 视频非VP90编码
-		if "%GraphicsType%" == "n" (
-			if "%AVSMode%"=="0" (
-				set "decodeCmd=-c:v h264_cuvid "
-			)
-		)
-		goto :handleLogo
-	)
+        echo 视频非VP90编码
+        if "%GraphicsType%" == "n" (
+            if "%AVSMode%"=="0" (
+                set "decodeCmd=-c:v h264_cuvid "
+            )
+        )
+        goto :handleLogo
+    )
 )
 
 REM =================预处理VP90=======================
@@ -106,89 +111,90 @@ REM =================ASS解析=======================
 :handleLogo
 if "%NeedLogo%"=="1" (
     echo 需要压制logo
-	goto :analysisASS
+    goto :analysisASS
 ) else (
     echo 无需压制logo
-	goto :prepareCmd
+    goto :prepareCmd
 )
 
 :analysisASS
 set "logoLine="
 set "targetStr=.png"
 
-for /f "delims=" %%B in ('type "!subfile!" ^| findstr "%targetStr%"') do (
+for /f "delims=" %%B in ('type "%subfile%" ^| findstr "%targetStr%"') do (
     set "logoLine=%%B"
-	echo !logoLine!
+    echo !logoLine!
 )
 
 if "%logoLine%" == "" (
-	echo 没有找到符合条件的LOGO行。
-	pause
-	goto :eof
+    echo 没有找到符合条件的LOGO行。
+    pause
+    goto :eof
 )
 
 REM 去掉字符串中的 "&"
-set "logoLine=!logoLine:&=!"
-set "logoLine=!logoLine::=!"
+set "logoLine=%logoLine:&=%"
+set "logoLine=%logoLine::=%"
 
 REM 提取logoPosition
 for /f "tokens=2 delims=()" %%i in ("%logoLine%") do (
     set "logoPosition=%%i"
 )
-set "logoPosition=!logoPosition:,=:!"
+set "logoPosition=%logoPosition:,=:%"
 
 REM 提取logoSize
 set "regexSize=l (\d+) 0 (\d+) (\d+) (\d+)"
-for /F "tokens=8-9" %%a in ('echo "!logoLine!"^| findstr /R "%regexSize%"') do (
+for /F "tokens=8-9" %%a in ('echo "%logoLine%"^| findstr /R "%regexSize%"') do (
   set "logoSize=%%a:%%b"
 )
 
 REM 提取logoName
 for /f "tokens=1-3 delims=}" %%a in ("%logoLine%") do (
     set "logoName=%%c"
-	set "logoPath=res\\logo\\!logoName!"
+    set "logoPath=res\\logo\\!logoName!"
 )
 
 REM 输出结果
-echo logoPosition=!logoPosition!
-echo logoSize=!logoSize!
-echo logoName=!logoName!
-echo logoPath=!logoPath!
-set "logoCmd=movie='!logoPath!',scale=!logoSize![wm];[in][wm]overlay=!logoPosition!,"
-set "LogoCmdFilter=[1:v]scale=!logoSize![wm];[m][wm]overlay=!logoPosition!,"
+echo logoPosition=%logoPosition%
+echo logoSize=%logoSize%
+echo logoName=%logoName%
+echo logoPath=%logoPath%
+set "logoCmd=movie='%logoPath%',scale=%logoSize%[wm];[in][wm]overlay=%logoPosition%,"
+set "LogoCmdFilter=[1:v]scale=%logoSize%[wm];[m][wm]overlay=%logoPosition%,"
 
 
 REM =================拼凑命令=======================
 :prepareCmd
 if "%AVSMode%"=="1" (
-	echo AVS压制
-	set "subCmd="
-	del res\temp\* /Q
-	echo F|xcopy "%videofile%" res\temp\input.mp4 /r
-	echo F|xcopy "%subfile%" res\temp\input.ass /r
-	set "videofile=res\input.avs"
+    echo AVS压制
+    set "subCmd="
+    del res\temp\* /Q
+    echo F|xcopy "%videofile%" res\temp\input.mp4 /r
+    echo F|xcopy "%subfile%" res\temp\input.ass /r
+    set "videofile=res\input.avs"
 ) else (
-	echo 普通压制
-	set "subCmd=subtitles='%subcodefile%'"
+    echo 普通压制
+    set "subCmd=subtitles='%subcodefile%'"
 )
 if "%NeedYadif%"=="0" (
     echo 无需反交错
-	if "%logoCmd%%subCmd%" == "" (
-		set vfCmd=
-	) else (
-		set vfCmd=-vf "%logoCmd%%subCmd%"
-	)
+    if "%logoCmd%%subCmd%" == "" (
+        set vfCmd=
+    ) else (
+        set vfCmd=-vf "%logoCmd%%subCmd%"
+    )
 ) else (
     echo 需要反交错
-	if "%NeedLogo%"=="1" (
-		set vfCmd=-i "%logoPath%" -filter_complex "[0:v]yadif[m];%LogoCmdFilter%%subCmd%"
-	) else (
-		set vfCmd=-vf "yadif,%subCmd%"
-	)
+    if "%NeedLogo%"=="1" (
+        set vfCmd=-i "%logoPath%" -filter_complex "[0:v]yadif[m];%LogoCmdFilter%%subCmd%"
+    ) else (
+        set vfCmd=-vf "yadif,%subCmd%"
+    )
 )
 
 REM =================压制=======================
 :compression 
+echo ================================= 压制开始 =================================
 @echo on
 :: CPU 压制
 ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% -c:a aac "%outputfile%" -y
