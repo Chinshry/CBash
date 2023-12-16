@@ -23,6 +23,8 @@ if "%~1" neq "" (
         set "videofile=%~1"
     ) else if /i "!ext:~1!" == "mkv" (
         set "videofile=%~1"
+    ) else if /i "!ext:~1!" == "ts" (
+        set "videofile=%~1"
     ) else if /i "!ext:~1!" == "ass" (
         set "subfile=%~1"
     ) else if /i "!ext:~1!" == "srt" (

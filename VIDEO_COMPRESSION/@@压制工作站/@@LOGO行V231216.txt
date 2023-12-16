@@ -19,6 +19,7 @@ Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1
 Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1\pos(200,30)\fs20}m 0 0 l 300 0 300 120 0 120{\p0}logo_heng.png
 Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1\pos(200,30)\fs20}m 0 0 l 250 0 250 100 0 100{\p0}logo_heng.png
 ----1080P------
+Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1\pos(200,30)\fs20}m 0 0 l 225 0 225 90 0 90{\p0}logo_heng.png
 Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1\pos(200,30)\fs20}m 0 0 l 200 0 200 80 0 80{\p0}logo_heng.png
 Dialogue: 0,0:00:00.00,5:00:00.00,横1080_听轴,,0,0,0,,{\an7\bord0\c&ffffff\p1\pos(200,30)\fs20}m 0 0 l 180 0 180 72 0 72{\p0}logo_heng.png
 ----720P及以下------
