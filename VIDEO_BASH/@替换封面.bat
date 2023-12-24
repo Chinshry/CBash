@@ -8,6 +8,7 @@ if "%~1" == "" (
   goto :eof
 )
 
+set "use_image=0"
 set "videofile="
 set "imagefile="
 
@@ -34,9 +35,16 @@ if "%imagefile%" == "" (
   goto :eof
 )
 
-for %%A in ("%videofile%") do (
-    set "tempfile=%%~dpnA_temp%%~xA"
-    set "tempfileName=%%~nxA"
+if "%use_image%"=="1" (
+    for %%A in ("%imagefile%") do (
+        set "tempfile=%%~dpnA_temp.mp4"
+        set "finalName=%%~nA.mp4"
+    )
+) else (
+    for %%A in ("%videofile%") do (
+        set "tempfile=%%~dpnA_temp%%~xA"
+        set "finalName=%%~nxA"
+    )
 )
 
 echo 修改中，请稍等...
@@ -45,6 +53,6 @@ ffmpeg -i "%videofile%" -i "%imagefile%" -map 1 -map 0 -c copy -disposition:0 at
 echo 清理中，请稍等...
 del /s /q "%videofile%"
 del /s /q "%imagefile%"
-ren "%tempfile%" "%tempfileName%"
+ren "%tempfile%" "%finalName%"
 
-echo 完成！输出文件为：%videofile%
+echo 完成！输出文件为：%finalName%
