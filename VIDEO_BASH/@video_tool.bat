@@ -8,6 +8,7 @@ echo [1] 旋转镜像
 echo [2] 分辨率调整 
 echo [3] 帧率调整
 echo [4] 码率调整
+echo [5] 反交错
 set /p main_choice=""
 echo ======================================
 
@@ -19,6 +20,8 @@ if "%main_choice%"=="1" (
     goto :video_frame_menu
 ) else if "%main_choice%"=="4" (
     goto :video_bitrate_menu
+)  else if "%main_choice%"=="5" (
+    goto :video_vadif_menu
 ) else (
     echo 无效的输入，请重新输入
     goto main_menu
@@ -134,5 +137,8 @@ if "%choice%"=="1" (
 
 set "video_bitrate_str=!video_bitrate!k"
 ffmpeg -i "%~1" -b:v !video_bitrate_str! -c:a copy "%~n1_!video_bitrate_str!"%~x1
-pause
+goto :EOF
+
+:video_vadif_menu
+ffmpeg -i "%~1" -preset veryfast -crf 18 -vf "yadif" "%~n1_yadif".mp4
 goto :EOF
