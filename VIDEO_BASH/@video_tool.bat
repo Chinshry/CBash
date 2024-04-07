@@ -90,7 +90,7 @@ REM 将冒号替换为下划线
 set "aspect_ratio_str=!aspect_ratio::=_!"
 echo path=%%~1
 echo aspect_ratio_str=%aspect_ratio_str%
-ffmpeg -i "%~1" -vf scale=!aspect_ratio! "%~n1_!aspect_ratio_str!"%~x1
+ffmpeg -i "%~1" -c:v libx264 -vf scale=!aspect_ratio! -preset veryfast -crf 18 "%~n1_!aspect_ratio_str!"%~x1
 goto :EOF
 
 :video_frame_menu
@@ -136,9 +136,11 @@ if "%choice%"=="1" (
 )
 
 set "video_bitrate_str=!video_bitrate!k"
-ffmpeg -i "%~1" -b:v !video_bitrate_str! -c:a copy "%~n1_!video_bitrate_str!"%~x1
+ffmpeg -i "%~1" -c:v libx264 -b:v !video_bitrate_str! -c:a copy "%~n1_!video_bitrate_str!"%~x1
 goto :EOF
 
 :video_vadif_menu
-ffmpeg -i "%~1" -preset veryfast -crf 18 -vf "yadif" "%~n1_yadif".mp4
+ffmpeg -i "%~1" -c:v libx264 -preset veryfast -crf 18 -vf "yadif" "%~n1_yadif".mp4
+:: ffmpeg -hide_banner -c:v h264_cuvid -i "%~1" -preset veryfast -crf 18 "%~n1_trans".mp4
+pause
 goto :EOF
