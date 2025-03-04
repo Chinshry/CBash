@@ -37,6 +37,7 @@ if "%~1" neq "" (
 endlocal
 setlocal enabledelayedexpansion
 
+echo ================READY==================
 echo videofile=%videofile%
 echo subfile=%subfile%
 
@@ -65,7 +66,7 @@ REM =================读取配置文件=======================
 set "AVSMode=0"
 set "NeedLogo=1"
 set "NeedYadif=0"
-set "CRF=23.5"
+set "CRF=18"
 set "GraphicsType=i"
 set "configFile=@@config.txt"
 for /f "usebackq delims=" %%a in ("%configFile%") do (
@@ -78,6 +79,24 @@ for /f "usebackq delims=" %%a in ("%configFile%") do (
         if "%%b"=="GraphicsType" set "GraphicsType=%%c"
     )
 )
+
+REM =================码率获取=======================
+set "videoBitrate=0"
+for /f "tokens=3 delims=," %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr "bitrate"') do (
+    for /f "tokens=2" %%b in ("%%a") do (
+        set "videoBitrate=%%b"
+    )
+)
+echo 视频码率=%videoBitrate%
+if "%videoBitrate%" NEQ "0" (
+	set /a "Bitrate=!videoBitrate! + 1000"
+	set /a "BitrateDouble=!Bitrate! * 2"
+	set bitrateCmd=-maxrate !Bitrate!k -bufsize !BitrateDouble!k
+)
+echo 视频码率命令=%bitrateCmd%
+echo ==================================
+
+REM =================配置打印=======================
 echo 是否AVS压制=%AVSMode%
 echo 是否压制Logo=%NeedLogo%
 echo 是否反交错=%NeedYadif%
@@ -86,6 +105,7 @@ echo 显卡类型=%GraphicsType%
 echo 确认以上配置无误，回车开始压制...
 pause
 
+echo ================================= 解析开始 =================================
 REM =================VP90视频判断=======================
 for /F "delims=" %%i in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr /C:"Stream #0:0"') do (
     echo %%i | findstr /C:"vp9" > nul
@@ -113,13 +133,13 @@ REM =================ASS解析=======================
 :handleLogo
 if "%NeedLogo%"=="1" (
     echo 需要压制logo
-    goto :analysisASS
+    goto :analysisASSLogo
 ) else (
     echo 无需压制logo
     goto :prepareCmd
 )
 
-:analysisASS
+:analysisASSLogo
 set "logoLine="
 set "targetStr=.png"
 
@@ -198,17 +218,13 @@ REM =================压制=======================
 :compression 
 echo ================================= 压制开始 =================================
 @echo on
-:: CPU 压制
-ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% -c:a aac "%outputfile%" -y
-:: GPU 压制
-:: N卡 直压
-:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -c:a aac "%outputfile%" -y
+:: CPU 压制 画质好
+ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% %bitrateCmd% -c:a aac "%outputfile%" -y
+:: GPU 压制 速度快
 :: N卡 6000K
-:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_nvenc -b:v 6000k -c:a aac "%outputfile%" -y
-:: A卡 直压
-:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v h264_nvenc -b:v 12000k -c:a aac "%outputfile%" -y
 :: A卡 6000K
-:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -vf "%logoCmd%subtitles='%subcodefile%'" -c:v h264_amf -b:v 6000k -c:a aac "%outputfile%" -y
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v h264_amf -b:v 12000k -c:a aac "%outputfile%" -y
 
 del res\temp\* /Q
 
