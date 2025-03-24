@@ -218,14 +218,16 @@ REM =================压制=======================
 :compression 
 echo ================================= 压制开始 =================================
 @echo on
-:: CPU 压制 画质好
+:: CPU HIGHER_QUALIITY
 ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% %bitrateCmd% -c:a aac "%outputfile%" -y
-:: GPU 压制 速度快
-:: N卡 6000K
+:: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" -ss 1141.6010909090908 -to 1427.0013636363635 %vfCmd% -c:v libx264 -preset veryfast -crf %CRF% %bitrateCmd% -c:a aac "%outputfile%" -y
+
+:: GPU FASTER
+:: N卡_6000K
 :: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v h264_nvenc -b:v 12000k -c:a aac "%outputfile%" -y
-:: A卡 6000K
+:: A卡_6000K
 :: ffmpeg -hide_banner %decodeCmd% -i "%videofile%" %vfCmd% -c:v h264_amf -b:v 12000k -c:a aac "%outputfile%" -y
-
+@echo off
 del res\temp\* /Q
-
+echo ================================= 压制完成 =================================
 pause

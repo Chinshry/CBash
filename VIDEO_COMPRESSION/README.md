@@ -33,7 +33,7 @@
 
 1. 下载 [@@压制工作站_no_ffmpeg.zip]
 2. 下载后解压，然后放置，以后该目录作为**压制工作目录**；
-3. 下载 [ffmpeg稳定版](https://github.com/GyanD/codexffmpeg/releases/download/6.0/ffmpeg-6.0-full_build.zip)；
+3. 下载 [ffmpeg稳定版](https://github.com/GyanD/codexffmpeg/releases/download/7.0/ffmpeg-7.0-full_build.zip)；
 4. 按照 [环境变量配置教程](https://www.bilibili.com/read/cv13908332) 配置ffmpeg环境变量；
 
 ## 💾 压制
@@ -42,13 +42,13 @@
 
 #### 1. 加滚轴行
 
-* [做不完的工作统计] (链接见群公告) 对应视频的分表里复制，或自行编写添加；
+* [工作统计] (链接见群公告) 对应视频的分表里复制，或自行编写添加；
 * 将滚轴行添加到轴文件第一行；
 
 #### 2. 加LOGO行
 
-* [做不完的工作统计] (链接见群公告) 对应视频的分表里复制，或自行编写添加，示例以及说明如下：
-  > * \pos{x,y} | 以左上角为锚点调整位置  
+* [工作统计] (链接见群公告) 对应视频的分表里复制，或自行编写添加，示例以及说明如下：
+  > * \pos{x,y} | 以左上角(\an7)为锚点调整位置  
   > * m 0 0 l w 0 w h 0 h | Logo大小，注意两个w和h均需要修改为宽高  
   > * logo_fang.png | Logo文件名，放置于 res\logo 目录下
 
@@ -70,7 +70,7 @@
 | ----- | ------ | ------ | ------ |
 | AVSMode | 0 | 是否AVS压制 | 本次压制完毕后，修改回0 |
 | NeedLogo | 1 | 是否压制Logo | 本次压制完毕后，修改回0 |
-| NeedYadif | 0 | 是否反交错 | 视频源为INDEX的 **打歌舞台** 或视频源播放有 **拉丝现象** 时需要修改为1，本次压制完毕后，修改回0 |
+| NeedYadif | 0 | 是否反交错 | 视频源为TV源的 **打歌舞台** 或视频源播放有 **拉丝现象** 时需要修改为1，本次压制完毕后，修改回0 |
 | CRF | 18 | CRF | 推荐配置范围18-25，数字越小越接近无损，18为几乎无损，[参考资料](https://trac.ffmpeg.org/wiki/Encode/H.264#a1.ChooseaCRFvalue)；若高码率含舞台的视频可压制30s，观察损耗是否严重，再酌情调整 |
 | GraphicsType | i | 压制类型 | 类型，若GPU为n卡可修改为n，压制更快 |
 
@@ -82,7 +82,7 @@
 ### 4️⃣ AVS压制
 
 > * 凡用到vsfiltermod的标签需用AVS压制, 即 [标准文档](https://aegi.vmoe.info/docs/3.2/ASS_Tags/) 内未提及的标签 例如：\$img \vc \fsvp  
-> * 所有vsfiltermod标签在文档内查阅： [vsfiltermod手册简要介绍目录](https://cwlrin.wiki/wp-content/uploads/2021/02/vsfiltermod-%E6%89%8B%E5%86%8C.pdf)
+> * 所有vsfiltermod标签在文档内查阅： [vsfiltermod手册](https://wenku.baidu.com/view/95939ab832b765ce0508763231126edb6e1a7612.html)
 > * AVS压制会复制一份视频到临时目录，因此必须保证 工作目录可用空间 > 视频所占用空间
 
 1. 下载并安装 [AviSynthPlus](https://github.com/AviSynth/AviSynthPlus/releases/download/v3.7.3/AviSynthPlus_3.7.3_20230715.exe) 必须勾选X64
@@ -93,7 +93,7 @@
 
 ### 5️⃣ 归档
 
-压制结束后把视频和轴都放到共享文件夹[做不完中转站]相应视频项目内(百度共享网盘，分享链接24h失效，请在群内询问)，命名为：  
+压制结束后把视频和轴都放到[共享文件夹中转站]相应视频项目内(百度共享网盘，分享链接24h失效，请在群内询问)，命名为：  
 中字：{date} {videoName} 中字.mp4  例如：230729 音乐中心 中字.mp4  
 合轴：{date} {videoName} 合轴.ass  例如：230729 音乐中心 合轴.ass  
 
