@@ -23,6 +23,8 @@ if "%~1" neq "" (
         set "videofile=%~1"
     ) else if /i "!ext:~1!" == "mkv" (
         set "videofile=%~1"
+    ) else if /i "!ext:~1!" == "mov" (
+        set "videofile=%~1"
     ) else if /i "!ext:~1!" == "ts" (
         set "videofile=%~1"
     ) else if /i "!ext:~1!" == "ass" (
@@ -67,6 +69,7 @@ set "AVSMode=0"
 set "NeedLogo=1"
 set "NeedYadif=0"
 set "CRF=18"
+set "MaxBitrate=-1"
 set "GraphicsType=i"
 set "configFile=@@config.txt"
 for /f "usebackq delims=" %%a in ("%configFile%") do (
@@ -76,24 +79,35 @@ for /f "usebackq delims=" %%a in ("%configFile%") do (
         if "%%b"=="NeedLogo" set "NeedLogo=%%c"
         if "%%b"=="NeedYadif" set "NeedYadif=%%c"
         if "%%b"=="CRF" set "CRF=%%c"
+        if "%%b"=="MaxBitrate" set "MaxBitrate=%%c"
         if "%%b"=="GraphicsType" set "GraphicsType=%%c"
     )
 )
 
 REM =================码率获取=======================
-set "videoBitrate=0"
-for /f "tokens=3 delims=," %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr "bitrate"') do (
-    for /f "tokens=2" %%b in ("%%a") do (
-        set "videoBitrate=%%b"
+if "%MaxBitrate%" NEQ "-1" (
+    set "videoBitrate=0"
+    if "%MaxBitrate%"=="0" (
+        for /f "tokens=3 delims=," %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr "bitrate"') do (
+            for /f "tokens=2" %%b in ("%%a") do (
+                echo 视频码率=%%b
+                set "videoBitrate=%%b + 1000"
+            )
+        )
+    ) else (
+        set "videoBitrate=%MaxBitrate%"
     )
+    if "%videoBitrate%" NEQ "0" (
+        set /a "Bitrate=!videoBitrate!"
+        set /a "BitrateDouble=!Bitrate! * 2"
+        set bitrateCmd=-maxrate !Bitrate!k -bufsize !BitrateDouble!k
+    )
+    echo 视频码率命令=!bitrateCmd!
+) else (
+    set "bitrateCmd="
+    echo 不限制视频码率
 )
-echo 视频码率=%videoBitrate%
-if "%videoBitrate%" NEQ "0" (
-	set /a "Bitrate=!videoBitrate! + 1000"
-	set /a "BitrateDouble=!Bitrate! * 2"
-	set bitrateCmd=-maxrate !Bitrate!k -bufsize !BitrateDouble!k
-)
-echo 视频码率命令=%bitrateCmd%
+
 echo ==================================
 
 REM =================配置打印=======================
@@ -146,8 +160,10 @@ set "targetStr=.png"
 for /f "delims=" %%B in ('type "%subfile%" ^| findstr "%targetStr%"') do (
     set "logoLine=%%B"
     echo !logoLine!
+    goto :break
 )
 
+:break
 if "%logoLine%" == "" (
     echo 没有找到符合条件的LOGO行。
     pause
