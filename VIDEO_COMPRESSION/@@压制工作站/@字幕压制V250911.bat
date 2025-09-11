@@ -4,7 +4,9 @@ setlocal enabledelayedexpansion
 
 REM =================文件导入=======================
 if "%~2" == "" (
+    echo *****************************************************
     echo 请拖拽视频文件和字幕文件到该脚本
+    echo *****************************************************
     pause
     goto :eof
 )
@@ -39,18 +41,22 @@ if "%~1" neq "" (
 endlocal
 setlocal enabledelayedexpansion
 
-echo ================READY==================
+echo ============================READY==============================
 echo videofile=%videofile%
 echo subfile=%subfile%
 
 if "%videofile%" == "" (
-    echo 没有找到视频文件，请拖拽视频文件和图片文件到该脚本上来。
+    echo *****************************************************
+    echo 没有找到视频文件，请拖拽视频文件和图片文件到该脚本上。
+    echo *****************************************************
     pause
     goto :eof
 )
 
 if "%subfile%" == "" (
-    echo 没有找到字幕文件，请拖拽视频文件和图片文件到该脚本上来。
+    echo *****************************************************
+    echo 没有找到字幕文件，请拖拽视频文件和图片文件到该脚本上。
+    echo *****************************************************
     pause
     goto :eof
 )
@@ -108,7 +114,7 @@ if "%MaxBitrate%" NEQ "-1" (
     echo 不限制视频码率
 )
 
-echo ==================================
+echo ==============================================================
 
 REM =================配置打印=======================
 echo 是否AVS压制=%AVSMode%
@@ -160,14 +166,61 @@ set "targetStr=.png"
 for /f "delims=" %%B in ('type "%subfile%" ^| findstr "%targetStr%"') do (
     set "logoLine=%%B"
     echo !logoLine!
-    goto :break
+    goto :findASSLogo
 )
 
-:break
+:findASSLogo
 if "%logoLine%" == "" (
-    echo 没有找到符合条件的LOGO行。
+    echo *****************************************************
+    echo 没有找到符合条件的LOGO行！
+    echo 若不需要LOGO请按回车仍继续压制，否则请关闭窗口退出压制。
+    echo *****************************************************
     pause
+    goto :prepareCmd
+)
+
+for /f "delims=" %%C in ('echo "!logoLine!" ^| findstr /r "^Dialogue:"') do (
+    echo *****************************************************
+    echo 未注释LOGO行！请注释后再进行压制！
+    echo *****************************************************
     goto :eof
+)
+
+echo =======================LOGO解析开始=======================
+
+REM 提取ASS PlayResX和PlayResY的值
+for /f "tokens=2 delims=:" %%a in ('findstr /i "PlayResX" "%subfile%"') do set "PlayResX=%%a"
+for /f "tokens=2 delims=:" %%a in ('findstr /i "PlayResY" "%subfile%"') do set "PlayResY=%%a"
+set "PlayResX=%PlayResX: =%"
+set "PlayResY=%PlayResY: =%"
+echo PlayResX:PlayResY: %PlayResX%:%PlayResY%
+        
+REM 提取视频分辨率
+for /f "tokens=*" %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr /r "[0-9][0-9]*x[0-9][0-9]*"') do (
+    set "line=%%a"
+    for %%a in (!line!:,= %) do (
+        echo %%a | findstr /r "[0-9][0-9][0-9]*x[0-9][0-9][0-9]*" >nul
+        if not errorlevel 1 (
+            for /f "tokens=1,2 delims=x" %%w in ("%%a") do (
+                set "videoWidth=%%w"
+                set "videoHeight=%%x"
+            )
+        )
+    )
+)
+set "videoWidth=%videoWidth: =%"
+set "videoHeight=%videoHeight: =%"
+echo videoWidth:videoHeight: %videoWidth%:%videoHeight%
+
+REM 得到放大倍数multiple
+for /f "delims=" %%a in ('powershell "%videoWidth%/%PlayResX%"') do set multipleX=%%a
+for /f "delims=" %%a in ('powershell "%videoHeight%/%PlayResY%"') do set multipleY=%%a
+set /a multiple=multipleX
+echo multiple: %multiple%
+if %multipleX% == %multipleY% (
+    if %multipleX% neq 1 (
+        echo =====ass和视频文件分辨率不匹配 需要将logo参数 x %multipleX%=======
+    )    
 )
 
 REM 去掉字符串中的 "&"
@@ -177,14 +230,28 @@ set "logoLine=%logoLine::=%"
 REM 提取logoPosition
 for /f "tokens=2 delims=()" %%i in ("%logoLine%") do (
     set "logoPosition=%%i"
+    for /f "tokens=1,2 delims=:," %%w in ("%%i") do (
+        set "logoPositionX=%%w"
+        set "logoPositionY=%%x"
+        for /f "delims=" %%a in ('powershell "!logoPositionX!*%multiple%"') do set logoPositionMultiX=%%a
+        for /f "delims=" %%a in ('powershell "!logoPositionY!*%multiple%"') do set logoPositionMultiY=%%a
+    )
 )
-set "logoPosition=%logoPosition:,=:%"
+echo logoPositionX:logoPositiony: %logoPositionX%:%logoPositiony%
+echo logoPositionMultiX:logoPositionMultiY: %logoPositionMultiX%:%logoPositionMultiY%
+set "logoPosition=%logoPositionMultiX%:%logoPositionMultiY%"
 
 REM 提取logoSize
 set "regexSize=l (\d+) 0 (\d+) (\d+) (\d+)"
 for /F "tokens=8-9" %%a in ('echo "%logoLine%"^| findstr /R "%regexSize%"') do (
-  set "logoSize=%%a:%%b"
+    set "logoSizeWidth=%%a"
+    set "logoSizeHeight=%%b"
+    for /f "delims=" %%d in ('powershell "!logoSizeWidth!*%multiple%"') do set logoSizeMultiWidth=%%d
+    for /f "delims=" %%d in ('powershell "!logoSizeHeight!*%multiple%"') do set logoSizeMultiHeight=%%d
 )
+echo logoSizeWidth:logoSizeHeight: %logoSizeWidth%:%logoSizeHeight%
+echo logoSizeMultiWidth:logoSizeMultiHeight: %logoSizeMultiWidth%:%logoSizeMultiHeight%
+set "logoSize=%logoSizeMultiWidth%:%logoSizeMultiHeight%"
 
 REM 提取logoName
 for /f "tokens=1-3 delims=}" %%a in ("%logoLine%") do (
@@ -193,6 +260,7 @@ for /f "tokens=1-3 delims=}" %%a in ("%logoLine%") do (
 )
 
 REM 输出结果
+echo =======================LOGO解析完成=======================
 echo logoPosition=%logoPosition%
 echo logoSize=%logoSize%
 echo logoName=%logoName%
@@ -207,6 +275,7 @@ if "%AVSMode%"=="1" (
     echo AVS压制
     set "subCmd="
     del res\temp\* /Q
+    if not exist "res\temp\" mkdir "res\temp"
     echo F|xcopy "%videofile%" res\temp\input.mp4 /r
     echo F|xcopy "%subfile%" res\temp\input.ass /r
     set "videofile=res\input.avs"
