@@ -196,7 +196,7 @@ set "PlayResY=%PlayResY: =%"
 echo PlayResX:PlayResY: %PlayResX%:%PlayResY%
         
 REM 提取视频分辨率
-for /f "tokens=*" %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr /r "[0-9][0-9]*x[0-9][0-9]*"') do (
+for /f "tokens=*" %%a in ('ffmpeg -i "%videofile%" 2^>^&1 ^| findstr /c:" Video:" ^| findstr /c:"default" ^| findstr /r "[0-9][0-9]*x[0-9][0-9]*"') do (
     set "line=%%a"
     for %%a in (!line!:,= %) do (
         echo %%a | findstr /r "[0-9][0-9][0-9]*x[0-9][0-9][0-9]*" >nul
